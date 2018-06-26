@@ -13,3 +13,8 @@ NSString *const kTestQQGetNickNameURL = @"/GetQqNikeName";
 NSString *const kTestDonationGetListURL = @"/GetDonationList";
 NSString *const kTestDonationGetPersonURL = @"/DonationPerson";
 
+
+NSString * const IAPZWGoodsRequestNotification = @"IAPZWGoodsRequestNotification";
+NSString * const IAPZWBuyResultNotification = @"IAPZWBuyResultNotification";
+NSString * const IAPZWBuyResultNotificationCancle = @"IAPZWBuyResultNotificationCancle";
+
