@@ -12,7 +12,7 @@
 #import <StoreKit/StoreKit.h>
 
 
-#define kIAPZWGoodsTableCellHeight 100 *kAppScale
+#define kIAPZWGoodsTableCellHeight 40 *kAppScale
 
 @interface IAPZWGoodsTableCell : UITableViewCell
 

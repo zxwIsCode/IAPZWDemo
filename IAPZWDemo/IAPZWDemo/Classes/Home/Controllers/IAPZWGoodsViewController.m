@@ -12,6 +12,9 @@
 #import "IAPZWGoodsNoti.h"
 #import "IAPZWGoodsManager.h"
 
+// 是否是生产状态
+#define kIsProduction 0
+
 @interface IAPZWGoodsViewController ()<UITableViewDelegate,UITableViewDataSource>
 
 @property(nonatomic,strong)UITableView *tableView;
@@ -28,7 +31,7 @@
     
     [self addAllNoti];
     
-    self.tableView.frame =CGRectMake(0, 64, SCREEN_WIDTH, SCREEN_HEIGHT -64);
+    self.tableView.frame =CGRectMake(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT -64);
     [self.view addSubview:self.tableView];
 
     // Do any additional setup after loading the view.
@@ -63,23 +66,16 @@
     // Display an alert, otherwise.
     if([SKPaymentQueue canMakePayments])
     {
+        // 这里本地写死商品id，正确方式为从后台获取
         NSArray *productIds = @[@"1008612345",@"1008611111"];
         [[IAPZWGoodsManager sharedInstance] fetchProductInformationForIds:productIds];
     }
     
     else
     {
-        // Warn the user that they are not allowed to make purchases.
-        //        [self alertWithTitle:@"Warning" message:@"Purchases are disabled on this device."];
+        
     }
-    
-    //    NSString *productId =@"1008612345";
-    //
-    //    SKProductsRequest *request = [[SKProductsRequest alloc] initWithProductIdentifiers:[NSSet setWithArray:@[productId]]];
-    //    request.delegate = self;
-    //    [request start];
-    //
-    //    [DisplayHelper displayWarningAlert:@"加载中..."];
+
 }
 
 -(void)addAllNoti {
@@ -108,14 +104,205 @@
     
     if (status == IAPGoodsRequestResponse)
     {
-//        self.openVipBtn.enabled =YES;
-//        self.openVipBtn.backgroundColor =kColorMainGreenColor;
-        
-        // Set the data source for the Products view
+
         self.dataArr = notificationManager.availableProducts;
         [self.tableView reloadData];
     }
 }
+
+-(void)responseToAllGoodsIsSuccess:(NSNotification *)notification
+{
+    IAPZWGoodsNoti *purchasesNotification = (IAPZWGoodsNoti *)notification.object;
+    IAPPurchaseNotificationStatus status = (IAPPurchaseNotificationStatus)purchasesNotification.status;
+    
+    [[DisplayHelper shareDisplayHelper]hideLoading:self.view];
+    switch (status)
+    {
+        case IAPPurchaseFailed: // 下单失败，沙河模式下必现流程为本地登录正常AppId，正常下单时必现，正常为把正常AppId给退出
+            [DisplayHelper displayWarningAlert:@"下单失败!"];
+            
+            break;
+        case IAPRestoredSucceeded:
+            
+        {
+            
+        }
+            break;
+        case IAPRestoredFailed:
+          
+            break;
+        case IAPDownloadStarted:
+        {
+            [[DisplayHelper shareDisplayHelper]hideLoading:self.view];
+           
+        }
+            break;
+        case IAPDownloadInProgress:
+        {
+            
+        }
+            break;
+        case IAPDownloadSucceeded:
+        {
+            
+        }
+            break;
+            
+        case IAPPurchaseSucceeded: // 支付成功
+        {
+            
+            [self dl_completeTransaction:purchasesNotification.purchasedID];
+            
+           
+        }
+            break;
+        default:
+            //            [DisplayHelper displayWarningAlert:@"未知问题等!"];
+            
+            break;
+    }
+}
+
+-(void)responseToAllGoodsCancle:(NSNotification *)notification {
+    [[DisplayHelper shareDisplayHelper]hideLoading:self.view];
+}
+
+- (void)dl_completeTransaction:(NSString *)productIdentifier {
+    //    NSString *productIdentifier = transaction.payment.productIdentifier;
+    NSData *receiptData = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] appStoreReceiptURL]];
+    NSString *receipt = [receiptData base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
+    [[DisplayHelper shareDisplayHelper]hideLoading:self.view];
+    if ([receipt length] > 0 && [productIdentifier length] > 0) {
+
+        /**
+         可以将receipt发给服务器进行购买验证
+         */
+        
+        [self dl_validateReceiptWiththeAppStore:receipt];
+        
+        
+        
+    }
+    //    [[SKPaymentQueue defaultQueue] finishTransaction: transaction];
+}
+
+-(void)dl_validateReceiptWiththeAppStore:(NSString *)receipt
+{
+    NSError *error;
+    NSDictionary *requestContents = @{@"receipt-data": receipt};
+    NSData *requestData = [NSJSONSerialization dataWithJSONObject:requestContents options:0 error:&error];
+    
+    if (!requestData) {
+        
+    }else{
+        
+    }
+    //    NSURL *storeURL;
+    //#ifdef DEBUG
+    //    storeURL = [NSURL URLWithString:@"https://sandbox.itunes.apple.com/verifyReceipt"];
+    //#else
+    //    storeURL = [NSURL URLWithString:@"https://buy.itunes.apple.com/verifyReceipt"];
+    //#endif
+    
+    NSURL *storeURL;
+    if (kIsProduction) {
+        storeURL = [NSURL URLWithString:@"https://buy.itunes.apple.com/verifyReceipt"];
+    }else {
+        storeURL = [NSURL URLWithString:@"https://sandbox.itunes.apple.com/verifyReceipt"];
+    }
+    
+    NSMutableURLRequest *storeRequest = [NSMutableURLRequest requestWithURL:storeURL];
+    [storeRequest setHTTPMethod:@"POST"];
+    [storeRequest setHTTPBody:requestData];
+    NSOperationQueue *queue = [[NSOperationQueue alloc] init];
+    WS(ws);
+    [NSURLConnection sendAsynchronousRequest:storeRequest queue:queue
+                           completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
+                               if (connectionError) {
+                                   /* 处理error */
+                               } else {
+                                   NSError *error;
+                                   NSDictionary *jsonResponse = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
+                                   if (!jsonResponse) {
+                                       /* 处理error */
+//                                       LHRPayResultViewController *vc =[[LHRPayResultViewController alloc]init];
+//                                       vc.isSuccess =NO;
+//                                       [ws.navigationController pushViewController:vc animated:YES];
+                                   }else{
+                                       /* 处理验证结果 */
+                                       if ([[jsonResponse allKeys]containsObject:@"status"]) {
+                                           NSString *statusStr =jsonResponse[@"status"];
+                                           if ([statusStr intValue] ==0) { // 成功发服务器
+                                               [ws requestPayIsSuccess:receipt];
+                                           }else {
+                                               dispatch_async(dispatch_get_main_queue(), ^{
+                                                   if ([statusStr intValue] ==21002) { // 重发机制
+                                                       [ws requestPayIsSuccess:receipt];
+                                                       //                                                       [DisplayHelper displayWarningAlert:@"沙河模式却发线上"];
+                                                   }else {
+//                                                       LHRPayResultViewController *vc =[[LHRPayResultViewController alloc]init];
+//                                                       vc.isSuccess =NO;
+//                                                       [ws.navigationController pushViewController:vc animated:YES];
+                                                   }
+                                                   
+                                               });
+                                               
+                                           }
+                                           
+                                       }
+                                       
+                                   }
+                               }
+                           }];
+    
+}
+
+-(void)requestPayIsSuccess:(NSString *)receipt {
+    
+    // 参数初始化
+    CMHttpRequestModel *model =[[CMHttpRequestModel alloc]init];
+    
+    
+    // 参数包装
+//    model.appendUrl = kSettingPay_SetIapCertificate;
+//    model.headerType = JNCHttpHeaderType_Default;
+    
+//    [model.paramDic setValue:[LHRUserHelper userModelData].userId forKey:@"userId"];
+    if (kIsProduction) {
+        [model.paramDic setValue:@(YES) forKey:@"chooseEnv"];
+    }else {
+        [model.paramDic setValue:@(NO) forKey:@"chooseEnv"];
+    }
+    NSString *receiptStr =[receipt stringByReplacingOccurrencesOfString:@"" withString:@"\r\n"];
+    [model.paramDic setValue:receiptStr forKey:@"receipt"];
+    
+    
+    WS(ws);
+    model.callback =^(CMHttpResponseModel *result, NSError *error) {
+        
+        if (result.state ==CMReponseCodeState_Success) {// 成功,做自己的逻辑
+            DDLog(@"%@",result.data);
+            NSDictionary *dataDic =(NSDictionary *)result.data;
+            if ([dataDic.allKeys  containsObject:@"isSuccess"]) {
+                
+            }
+            
+            
+            
+            
+        }else {
+            
+        }
+        
+        
+    };
+    // 发送网络请求
+    [[CMHTTPSessionManager sharedHttpSessionManager] sendHttpRequestParam:model];
+    
+    
+    
+}
+
 
 #pragma mark - UITableViewDelegate
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
@@ -143,6 +330,15 @@
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     
     [tableView deselectRowAtIndexPath:indexPath animated:NO];
+    
+    if (indexPath.row < self.dataArr.count) {
+        
+        SKProduct *product = self.dataArr[0];
+        [[IAPZWGoodsNoti sharedInstance] buy:product];
+        [[DisplayHelper shareDisplayHelper]showLoading:self.view];
+        
+    }
+    
 }
 
 #pragma mark - Setter & Getter

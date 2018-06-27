@@ -24,6 +24,9 @@
 ////新浪微博SDK头文件
 //#import "WeiboSDK.h"
 
+#import <StoreKit/StoreKit.h>
+#import "IAPZWGoodsNoti.h"
+
 
 #define IsFirstLaunch @"CFBundleVersion"
 
@@ -40,6 +43,14 @@
 
 #pragma mark - UIApplication Methods
 
+- (void)applicationWillTerminate:(UIApplication *)application
+{
+    // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+    
+    // Remove the observer
+    [[SKPaymentQueue defaultQueue] removeTransactionObserver: [IAPZWGoodsNoti sharedInstance]];
+}
+
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
 
     [[UINavigationBar appearance]setBarTintColor:RGBCOLOR(129, 188, 53)];
@@ -54,6 +65,9 @@
 //        
 //    // 初始化微信支付
 //    [self initWpay];
+    
+    [[SKPaymentQueue defaultQueue] addTransactionObserver:[IAPZWGoodsNoti sharedInstance]];
+
     
 
     return YES;

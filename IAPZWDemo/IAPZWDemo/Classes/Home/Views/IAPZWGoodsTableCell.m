@@ -14,6 +14,8 @@
 
 @property(nonatomic,strong)UILabel *rightLable;
 
+@property(nonatomic,strong)UIView *lineView;
+
 @end
 
 @implementation IAPZWGoodsTableCell
@@ -38,10 +40,11 @@
         
         self.leftLable = [[UILabel alloc]init];
         self.rightLable =[[UILabel alloc]init];
+        self.lineView =[[UIView alloc]init];
         
-        self.leftLable.frame =CGRectMake(0, 0, SCREEN_WIDTH *0.5, kIAPZWGoodsTableCellHeight);
-        self.rightLable.frame =CGRectMake(SCREEN_WIDTH *0.5, 0, SCREEN_WIDTH *0.5, kIAPZWGoodsTableCellHeight);
-
+        self.leftLable.frame =CGRectMake(10, 0, SCREEN_WIDTH *0.5 -10, kIAPZWGoodsTableCellHeight);
+        self.rightLable.frame =CGRectMake(SCREEN_WIDTH *0.5, 0, SCREEN_WIDTH *0.5 -10, kIAPZWGoodsTableCellHeight);
+        self.lineView.frame =CGRectMake(0, kIAPZWGoodsTableCellHeight -0.5, SCREEN_WIDTH, 0.5);
         
         self.leftLable.textColor =[UIColor blackColor];
         self.leftLable.font =[UIFont systemFontOfSize:15 *kAppScale];
@@ -51,25 +54,15 @@
         self.rightLable.font =[UIFont systemFontOfSize:15 *kAppScale];
         self.rightLable.textAlignment =NSTextAlignmentRight;
         
+        self.lineView.backgroundColor =UIColorFromHexValue(0xdddddd);
         
         [self.contentView addSubview:self.leftLable];
         [self.contentView addSubview:self.rightLable];
+        [self.contentView addSubview:self.lineView];
     }
     return self;
 }
 
--(void)setGoodsModel:(IAPZWGoodsModel *)goodsModel {
-//    NSArray *productRequestResponse = goodsModel.productListArr;
-//    
-//    if (goodsModel.isValid)
-//    {
-//        if (productRequestResponse.count) {
-//            SKProduct *aProduct = productRequestResponse[0];
-//            self.leftLable.text = aProduct.localizedTitle;
-//        }
-//        
-//    }
-}
 
 -(void)setAProduct:(SKProduct *)aProduct {
     _aProduct =aProduct;

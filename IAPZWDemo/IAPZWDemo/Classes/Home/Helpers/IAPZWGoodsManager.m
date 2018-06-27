@@ -42,21 +42,17 @@
 
 #pragma mark Request information
 
-// Fetch information about your products from the App Store
 -(void)fetchProductInformationForIds:(NSArray *)productIds
 {
     self.productRequestResponse = [[NSMutableArray alloc] initWithCapacity:0];
-    // Create a product request object and initialize it with our product identifiers
     SKProductsRequest *request = [[SKProductsRequest alloc] initWithProductIdentifiers:[NSSet setWithArray:productIds]];
     request.delegate = self;
     
-    // Send the request to the App Store
     [request start];
 }
 
 #pragma mark - SKProductsRequestDelegate
 
-// Used to get the App Store's response to your request and notifies your observer
 - (void)productsRequest:(SKProductsRequest *)request didReceiveResponse:(SKProductsResponse *)response
 {
     IAPZWGoodsModel *model = nil;
@@ -71,8 +67,7 @@
         self.availableProducts = [NSMutableArray arrayWithArray:response.products];
     }
     
-    // The invalidProductIdentifiers array contains all product identifiers not recognized by the App Store.
-    // Create an "INVALID PRODUCT IDS" model object.
+
     if ((response.invalidProductIdentifiers).count > 0)
     {
         model = [[IAPZWGoodsModel alloc] init];
@@ -87,10 +82,8 @@
 
 #pragma mark SKRequestDelegate method
 
-// Called when the product request failed.
 - (void)request:(SKRequest *)request didFailWithError:(NSError *)error
 {
-    // Prints the cause of the product request failure
     NSLog(@"Product Request Status: %@",error.localizedDescription);
 }
 
