@@ -13,19 +13,19 @@
 
 @interface IAPZWGoodsNoti : NSObject<SKPaymentTransactionObserver>
 
-typedef NS_ENUM(NSInteger, IAPPurchaseNotificationStatus)
+typedef NS_ENUM(NSInteger, IAPZWToBuyOrDownOrderStatus)
 {
-    IAPPurchaseFailed,
-    IAPPurchaseSucceeded,
-    IAPRestoredFailed,
-    IAPRestoredSucceeded,
-    IAPDownloadStarted,
-    IAPDownloadInProgress,
-    IAPDownloadFailed,
-    IAPDownloadSucceeded
+    IAPZWBuyGoodsFailed,
+    IAPZWBuyGoodsSucceeded,
+    IAPZWRestoredFailed,
+    IAPZWRestoredSucceeded,
+    IAPZWDownOrderStarted,
+    IAPZWDownOrderProgress,
+    IAPZWDownOrderFailed,
+    IAPZWDownOrderSucceeded
 };
 
-@property (nonatomic) IAPPurchaseNotificationStatus status;
+@property (nonatomic) IAPZWToBuyOrDownOrderStatus status;
 
 // 所有的下单后的商品Id集合
 @property (nonatomic, strong) NSMutableArray *goodProductIds;

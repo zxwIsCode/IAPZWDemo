@@ -1905,7 +1905,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 273RNCM2RZ;
+				DEVELOPMENT_TEAM = W4G5NYC77D;
 				GCC_PREFIX_HEADER = "$(SRCROOT)/IAPZWDemo/General/IAPDemoPrefix.pch";
 				INFOPLIST_FILE = "$(SRCROOT)/IAPZWDemo/Supporting Files/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
@@ -1917,7 +1917,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/IAPZWDemo/Vendor/SDKExport",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = club.modernEdu.LoveHomeReading;
+				PRODUCT_BUNDLE_IDENTIFIER = club.modernEdu..IAPZWDemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -1928,7 +1928,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 273RNCM2RZ;
+				DEVELOPMENT_TEAM = W4G5NYC77D;
 				GCC_PREFIX_HEADER = "$(SRCROOT)/IAPZWDemo/General/IAPDemoPrefix.pch";
 				INFOPLIST_FILE = "$(SRCROOT)/IAPZWDemo/Supporting Files/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
@@ -1940,7 +1940,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/IAPZWDemo/Vendor/SDKExport",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = club.modernEdu.LoveHomeReading;
+				PRODUCT_BUNDLE_IDENTIFIER = club.modernEdu..IAPZWDemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = 1;
 			};

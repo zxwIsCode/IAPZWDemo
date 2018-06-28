@@ -24,12 +24,14 @@
 
 #pragma mark  - Private Methods
 
+// 下单商品
 -(void)buyAllGood:(SKProduct *)product
 {
     SKMutablePayment *payment = [SKMutablePayment paymentWithProduct:product];
     [[SKPaymentQueue defaultQueue] addPayment:payment];
 }
 
+// 如果存在的话即为上次未来的及验证的订单重新验证（这里没有做相关逻辑）
 -(void)restoreAllGoods
 {
     [[SKPaymentQueue defaultQueue] restoreCompletedTransactions];
@@ -45,7 +47,7 @@
         [[NSNotificationCenter defaultCenter] postNotificationName:IAPZWBuyResultNotification object:self];
     }
     
-    if (status == IAPDownloadStarted) // 开始下单
+    if (status == IAPZWDownOrderStarted) // 开始下单
     {
         [[SKPaymentQueue defaultQueue] startDownloads:transaction.downloads];
     }
@@ -74,14 +76,14 @@
     
     if (allAssetsDownloaded)
     {
-        self.status = IAPDownloadSucceeded;
+        self.status = IAPZWDownOrderSucceeded;
         
         [[SKPaymentQueue defaultQueue] finishTransaction:transaction];
         [[NSNotificationCenter defaultCenter] postNotificationName:IAPZWBuyResultNotification object:self];
         
         if ([self.goodRestoredIds containsObject:transaction])
         {
-            self.status = IAPRestoredSucceeded;
+            self.status = IAPZWRestoredSucceeded;
             [[NSNotificationCenter defaultCenter] postNotificationName:IAPZWBuyResultNotification object:self];
         }
         
@@ -98,12 +100,14 @@
     {
         switch (transaction.transactionState )
         {
+            // 1.第一次调起苹果支付框时走这里
             case SKPaymentTransactionStatePurchasing:
                 break;
                 
             case SKPaymentTransactionStateDeferred:
 
                 break;
+                // 2.这里有时会走2次，其中比较关心的一次是 IAPZWBuyGoodsSucceeded 这一次
             case SKPaymentTransactionStatePurchased:
             {
                 self.purchasedID = transaction.payment.productIdentifier;
@@ -112,11 +116,11 @@
 
                 if(transaction.downloads && transaction.downloads.count > 0)
                 {
-                    [self completeTransaction:transaction forStatus:IAPDownloadStarted];
+                    [self completeTransaction:transaction forStatus:IAPZWDownOrderStarted];
                 }
                 else
                 {
-                    [self completeTransaction:transaction forStatus:IAPPurchaseSucceeded];
+                    [self completeTransaction:transaction forStatus:IAPZWBuyGoodsSucceeded];
                 }
             }
                 break;
@@ -128,18 +132,19 @@
                 NSLog(@"SKPaymentTransactionStateRestored %@",transaction.payment.productIdentifier);
                 if(transaction.downloads && transaction.downloads.count > 0)
                 {
-                    [self completeTransaction:transaction forStatus:IAPDownloadStarted];
+                    [self completeTransaction:transaction forStatus:IAPZWDownOrderStarted];
                 }
                 else
                 {
-                    [self completeTransaction:transaction forStatus:IAPRestoredSucceeded];
+                    [self completeTransaction:transaction forStatus:IAPZWRestoredSucceeded];
                 }
             }
                 break;
+                // 3.测试中会发现有时走这个方法
             case SKPaymentTransactionStateFailed:
             {
                 self.errorMsg = [NSString stringWithFormat:@"SKPaymentTransactionStateFailed %@ ",transaction.payment.productIdentifier];
-                [self completeTransaction:transaction forStatus:IAPPurchaseFailed];
+                [self completeTransaction:transaction forStatus:IAPZWBuyGoodsFailed];
             }
                 break;
             default:
@@ -149,7 +154,7 @@
 }
 
 
-// 下单过程中的回调
+// 下单过程中的回调（实际测试中好像没有调用的时候）
 - (void)paymentQueue:(SKPaymentQueue *)queue updatedDownloads:(NSArray *)downloads
 {
     for (SKDownload* download in downloads)
@@ -158,7 +163,7 @@
         {
             case SKDownloadStateActive:
             {
-                self.status = IAPDownloadInProgress;
+                self.status = IAPZWDownOrderProgress;
                 self.purchasedID = download.transaction.payment.productIdentifier;
                 [[NSNotificationCenter defaultCenter] postNotificationName:IAPZWBuyResultNotification object:self];
             }
@@ -209,7 +214,7 @@
 {
     if (error.code != SKErrorPaymentCancelled)
     {
-        self.status = IAPRestoredFailed;
+        self.status = IAPZWRestoredFailed;
         self.errorMsg = error.localizedDescription;
         [[NSNotificationCenter defaultCenter] postNotificationName:IAPZWBuyResultNotification object:self];
     }
