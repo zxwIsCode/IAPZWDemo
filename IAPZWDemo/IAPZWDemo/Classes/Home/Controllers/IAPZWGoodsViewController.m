@@ -68,7 +68,7 @@
     {
         // 这里本地写死商品id，正确方式为从后台获取
         NSArray *productIds = @[@"1008612345",@"1008611111"];
-        [[IAPZWGoodsManager sharedInstance] fetchProductInformationForIds:productIds];
+        [[IAPZWGoodsManager sharedInstance] requestGetAllGoodsProductIds:productIds];
     }
     
     else
@@ -334,7 +334,7 @@
     if (indexPath.row < self.dataArr.count) {
         
         SKProduct *product = self.dataArr[0];
-        [[IAPZWGoodsNoti sharedInstance] buy:product];
+        [[IAPZWGoodsNoti sharedInstance] buyAllGood:product];
         [[DisplayHelper shareDisplayHelper]showLoading:self.view];
         
     }

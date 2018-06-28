@@ -28,23 +28,20 @@ typedef NS_ENUM(NSInteger, IAPPurchaseNotificationStatus)
 @property (nonatomic) IAPPurchaseNotificationStatus status;
 
 // 所有的下单后的商品Id集合
-@property (nonatomic, strong) NSMutableArray *productsPurchased;
+@property (nonatomic, strong) NSMutableArray *goodProductIds;
 // 所有支付成功后还未来得及双重验证的的商品Id集合
-@property (nonatomic, strong) NSMutableArray *productsRestored;
+@property (nonatomic, strong) NSMutableArray *goodRestoredIds;
 
-@property (nonatomic, copy) NSString *message;
+@property (nonatomic, copy) NSString *errorMsg;
 
-@property(nonatomic) float downloadProgress;
-
+// 当前支付的商品Id
 @property (nonatomic, copy) NSString *purchasedID;
 
 
--(BOOL)hasPurchasedProducts;
--(BOOL)hasRestoredProducts;
-
 + (IAPZWGoodsNoti *)sharedInstance;
--(void)buy:(SKProduct *)product;
-
--(void)restore;
+// 下单商品
+-(void)buyAllGood:(SKProduct *)product;
+// 如果存在的话即为上次未来的及验证的订单重新验证（这里没有做相关逻辑）
+-(void)restoreAllGoods;
 
 @end

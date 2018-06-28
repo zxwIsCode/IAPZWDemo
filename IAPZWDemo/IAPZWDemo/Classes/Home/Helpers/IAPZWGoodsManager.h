@@ -20,20 +20,19 @@ typedef NS_ENUM(NSInteger, IAPGoodsRequestStatus)
 
 @property (nonatomic) IAPGoodsRequestStatus status;
 
-@property (nonatomic, strong) NSMutableArray *productRequestResponse;
+// 所有的商品集合
+@property (nonatomic, strong) NSMutableArray *allProductIds;
 
+// 无效的商品集合
 @property (nonatomic, strong) NSMutableArray *invalidProductIds;
 
-
+// 有效的商品集合
 @property (nonatomic, strong) NSMutableArray *availableProducts;
 
 
 
 + (IAPZWGoodsManager *)sharedInstance;
 
--(void)fetchProductInformationForIds:(NSArray *)productIds;
-
--(NSString *)titleMatchingProductIdentifier:(NSString *)identifier;
-
+-(void)requestGetAllGoodsProductIds:(NSArray *)productIds;
 
 @end

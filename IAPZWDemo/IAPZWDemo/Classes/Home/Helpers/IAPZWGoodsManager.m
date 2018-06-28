@@ -16,35 +16,24 @@
 @end
 @implementation IAPZWGoodsManager
 
+#pragma mark - Init
+
 + (IAPZWGoodsManager *)sharedInstance
 {
     static dispatch_once_t onceToken;
-    static IAPZWGoodsManager * storeManagerSharedInstance;
+    static IAPZWGoodsManager * instance;
     
     dispatch_once(&onceToken, ^{
-        storeManagerSharedInstance = [[IAPZWGoodsManager alloc] init];
+        instance = [[IAPZWGoodsManager alloc] init];
     });
-    return storeManagerSharedInstance;
+    return instance;
 }
 
 
-- (instancetype)init
-{
-    self = [super init];
-    if (self != nil)
-    {
-        _availableProducts = [[NSMutableArray alloc] initWithCapacity:0];
-        _invalidProductIds = [[NSMutableArray alloc] initWithCapacity:0];
-        _productRequestResponse = [[NSMutableArray alloc] initWithCapacity:0];
-    }
-    return self;
-}
+#pragma mark - Private Methods
 
-#pragma mark Request information
-
--(void)fetchProductInformationForIds:(NSArray *)productIds
+-(void)requestGetAllGoodsProductIds:(NSArray *)productIds
 {
-    self.productRequestResponse = [[NSMutableArray alloc] initWithCapacity:0];
     SKProductsRequest *request = [[SKProductsRequest alloc] initWithProductIdentifiers:[NSSet setWithArray:productIds]];
     request.delegate = self;
     
@@ -63,7 +52,7 @@
         model.isValid =YES;
         model.productListArr =response.products;
         
-        [self.productRequestResponse addObject:model];
+        [self.allProductIds addObject:model];
         self.availableProducts = [NSMutableArray arrayWithArray:response.products];
     }
     
@@ -73,18 +62,43 @@
         model = [[IAPZWGoodsModel alloc] init];
         model.isValid =NO;
         model.productListArr =response.invalidProductIdentifiers;
-        [self.productRequestResponse addObject:model];
+        [self.allProductIds addObject:model];
     }
     
     self.status = IAPGoodsRequestResponse;
     [[NSNotificationCenter defaultCenter] postNotificationName:IAPZWGoodsRequestNotification object:self];
 }
 
-#pragma mark SKRequestDelegate method
+#pragma mark - SKRequestDelegate
 
 - (void)request:(SKRequest *)request didFailWithError:(NSError *)error
 {
-    NSLog(@"Product Request Status: %@",error.localizedDescription);
+    NSLog(@"didFailWithError: %@",error.localizedDescription);
+}
+
+- (void)requestDidFinish:(SKRequest *)request {
+    
+    NSLog(@"requestDidFinish");
+
+}
+#pragma mark - Setter & Getter
+-(NSMutableArray *)allProductIds {
+    if (!_allProductIds) {
+        _allProductIds =[NSMutableArray array];
+    }
+    return _allProductIds;
+}
+-(NSMutableArray *)invalidProductIds {
+    if (!_invalidProductIds) {
+        _invalidProductIds =[NSMutableArray array];
+    }
+    return _invalidProductIds;
+}
+-(NSMutableArray *)availableProducts {
+    if (!_availableProducts) {
+        _availableProducts =[NSMutableArray array];
+    }
+    return _availableProducts;
 }
 
 
